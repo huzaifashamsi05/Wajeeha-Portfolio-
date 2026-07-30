@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Tilt from 'react-parallax-tilt';
 
 const Hero = ({ theme }) => {
     const [bio, setBio] = useState({
