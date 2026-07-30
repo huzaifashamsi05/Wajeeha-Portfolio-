@@ -1,5 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import path from 'path';
@@ -26,7 +27,7 @@ const upload = multer({ storage: storage });
 
 // CSRF Token route (GET)
 router.get('/csrf-token', generateCsrfToken, (req, res) => {
-    res.json({ csrfToken: req.session.csrfToken });
+    res.json({ csrfToken: req.csrfToken });
 });
 
 // Login rate limiter
@@ -36,6 +37,8 @@ const loginLimiter = rateLimit({
     message: { error: 'Too many login attempts. Please try again later.' }
 });
 
+const JWT_SECRET = process.env.SESSION_SECRET || 'fallback_secret_for_development';
+
 router.post('/login', loginLimiter, validateCsrfToken, async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -44,7 +47,14 @@ router.post('/login', loginLimiter, validateCsrfToken, async (req, res) => {
         const isMatch = bcrypt.compareSync(password, admin.admin_password_hash);
         if (!isMatch) return res.status(401).json({ error: 'Access Denied — check your username or password' });
         
-        req.session.adminId = admin.id;
+        const token = jwt.sign({ adminId: admin.id }, JWT_SECRET, { expiresIn: '24h' });
+        res.cookie('admin_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
         res.json({ success: true, message: 'Logged in successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
@@ -52,7 +62,7 @@ router.post('/login', loginLimiter, validateCsrfToken, async (req, res) => {
 });
 
 router.post('/logout', async (req, res) => {
-    req.session.destroy();
+    res.clearCookie('admin_token');
     res.json({ success: true, message: 'Logged out successfully' });
 });
 

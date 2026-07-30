@@ -2,7 +2,7 @@ let csrfToken = null;
 
 export const fetchCsrfToken = async () => {
     try {
-        const res = await fetch('/api/admin/csrf-token');
+        const res = await fetch('/api/admin/csrf-token', { credentials: 'include' });
         const data = await res.json();
         csrfToken = data.csrfToken;
         return csrfToken;
@@ -13,6 +13,8 @@ export const fetchCsrfToken = async () => {
 };
 
 export const apiFetch = async (url, options = {}) => {
+    options.credentials = 'include';
+    
     if (['POST', 'PUT', 'DELETE'].includes(options.method)) {
         if (!csrfToken) await fetchCsrfToken();
         

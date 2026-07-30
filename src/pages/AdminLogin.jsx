@@ -13,8 +13,7 @@ const AdminLogin = ({ setIsAuthenticated }) => {
     useEffect(() => {
         fetchCsrfToken();
         // Check if already authenticated
-        fetch('/api/admin/check-auth')
-            .then(res => res.json())
+        apiFetch('/api/admin/check-auth')
             .then(data => {
                 if (data.authenticated) {
                     setIsAuthenticated(true);
