@@ -94,7 +94,6 @@ const Hero = ({ theme }) => {
                         <div className="typewriter-container">
                             <span id="typewriter">{displayedSubtitle}</span><span className="cursor"></span>
                         </div>
-                        <p>{bio.about_text}</p>
                         
                         <div className="hero-buttons">
                             <a href="#projects" className="btn btn-primary">View My Work</a>
