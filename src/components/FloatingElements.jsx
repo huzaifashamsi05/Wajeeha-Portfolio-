@@ -71,12 +71,22 @@ const FloatingElements = () => {
                 </a>
             </div>
 
-            {/* Custom Cursor Glow (Desktop Only) */}
+            {/* Full Custom Cursor (Desktop Only) */}
             {isDesktop && (
-                <div 
-                    className="custom-cursor-glow"
-                    style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
-                ></div>
+                <>
+                    <div 
+                        className="cursor-dot"
+                        style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
+                    ></div>
+                    <div 
+                        className="cursor-outline"
+                        style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
+                    ></div>
+                    <div 
+                        className="custom-cursor-glow"
+                        style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
+                    ></div>
+                </>
             )}
         </>
     );

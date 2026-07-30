@@ -395,3 +395,8 @@ section { padding: var(--section-padding); position: relative; z-index: 1; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }  
 ::-webkit-scrollbar-thumb { background: var(--gradient-primary); border-radius: 10px; }  
 ::-webkit-scrollbar-thumb:hover { background: var(--secondary-color); } 
+/* Real Custom Cursor */  
+html, body { cursor: none !important; }  
+.cursor-dot { width: 8px; height: 8px; background-color: var(--secondary-color); border-radius: 50%; position: fixed; transform: translate(-50%, -50%); pointer-events: none; z-index: 10000; mix-blend-mode: exclusion; transition: width 0.2s, height 0.2s; }  
+.cursor-outline { width: 40px; height: 40px; border: 2px solid var(--secondary-color); border-radius: 50%; position: fixed; transform: translate(-50%, -50%); pointer-events: none; z-index: 9999; transition: left 0.1s ease-out, top 0.1s ease-out, width 0.2s, height 0.2s; mix-blend-mode: exclusion; }  
+a:hover ~ .cursor-outline, button:hover ~ .cursor-outline { width: 60px; height: 60px; background-color: rgba(236,72,153,0.1); } 
