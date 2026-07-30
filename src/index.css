@@ -475,6 +475,120 @@ a:hover ~ .cursor-outline, button:hover ~ .cursor-outline { width: 60px; height:
     .footer-brand h2 { font-size: 2.5rem; }
 }
 
+/* ==========================================================================
+   ENHANCED PROFILE PHOTO & WOW EFFECTS
+   ========================================================================== */
+
+.hero-image-container { position: relative; z-index: 1; }
+.hero-image-wrapper { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 50%; padding: 10px; background: transparent; z-index: 1; margin: 0 auto; }
+
+.animated-border { 
+    position: absolute; 
+    inset: 0; 
+    border-radius: 50%; 
+    padding: 4px; 
+    background: linear-gradient(45deg, var(--accent-glow), #a855f7, var(--accent-glow)); 
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); 
+    -webkit-mask-composite: xor; 
+    mask-composite: exclude; 
+    animation: rotateBorder 4s linear infinite; 
+    opacity: 0.8; 
+}
+
+@keyframes rotateBorder { 
+    100% { transform: rotate(360deg); } 
+}
+
+.floating-sparkle { 
+    position: absolute; 
+    color: var(--accent-glow); 
+    font-size: 1.2rem; 
+    filter: drop-shadow(0 0 5px var(--accent-glow)); 
+    animation: floatSparkle 3s ease-in-out infinite alternate; 
+    z-index: 2; 
+    opacity: 0.8; 
+}
+
+.sp-1 { top: 10%; left: 10%; animation-delay: 0s; font-size: 1.5rem; }
+.sp-2 { bottom: 15%; right: 5%; animation-delay: 1s; color: #a855f7; font-size: 1.8rem; }
+.sp-3 { top: 40%; right: -5%; animation-delay: 2s; font-size: 1.2rem; }
+
+@keyframes floatSparkle { 
+    0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.5; } 
+    100% { transform: translateY(-15px) scale(1.2) rotate(15deg); opacity: 1; } 
+}
+
+.hero-image { 
+    border-radius: 50%; 
+    box-shadow: 0 0 40px rgba(236, 72, 153, 0.3); 
+    border: 2px solid rgba(255,255,255,0.1); 
+    object-fit: cover; 
+    z-index: 1; 
+    position: relative; 
+}
+
+/* DYNAMIC PROJECT BACKGROUNDS & HOVER EFFECTS */
+.project-card { 
+    background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); 
+    overflow: hidden; 
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.project-card::before { 
+    content: ''; 
+    position: absolute; 
+    top: -50%; 
+    left: -50%; 
+    width: 200%; 
+    height: 200%; 
+    background: radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 50%); 
+    opacity: 0; 
+    transition: opacity 0.5s; 
+    pointer-events: none; 
+}
+
+.project-card:hover { 
+    transform: translateY(-10px) scale(1.02); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(236,72,153,0.2); 
+    border-color: rgba(236,72,153,0.4); 
+}
+
+.project-card:hover::before { 
+    opacity: 1; 
+    animation: rotateGradient 10s linear infinite; 
+}
+
+@keyframes rotateGradient { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+/* HAMBURGER SLIDE ANIMATION & SMALL MOBILE FIXES */
+@media screen and (max-width: 768px) {
+    .nav-links { 
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        width: 100%; 
+        background: var(--bg-secondary); 
+        padding: 1.5rem; 
+        flex-direction: column; 
+        gap: 1.5rem; 
+        border-bottom: 1px solid var(--border-color); 
+        box-shadow: var(--shadow-strong); 
+        opacity: 0; 
+        transform: translateY(-20px); 
+        pointer-events: none; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex !important; 
+    }
+    .nav-links.active { 
+        opacity: 1; 
+        transform: translateY(0); 
+        pointer-events: auto; 
+    }
+}
+
 /* Small Mobile (480px) */
 @media screen and (max-width: 480px) {
     .hero-text h1 { font-size: 2.3rem; }

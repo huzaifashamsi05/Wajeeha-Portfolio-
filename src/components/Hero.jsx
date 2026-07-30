@@ -109,8 +109,26 @@ const Hero = ({ theme }) => {
                         </div>
                     </div>
                     
-                    <div className="hero-image-wrapper reveal">
-                        <img src="assets/profile.jpg" alt="Wajeeha Imran" className="hero-image" />
+                    <div className="hero-image-container reveal">
+                        <Tilt 
+                            tiltMaxAngleX={10} 
+                            tiltMaxAngleY={10} 
+                            perspective={1000} 
+                            scale={1.05} 
+                            transitionSpeed={2000}
+                            glareEnable={true}
+                            glareMaxOpacity={0.2}
+                            glareColor="var(--accent-glow)"
+                            glarePosition="all"
+                        >
+                            <div className="hero-image-wrapper">
+                                <div className="animated-border"></div>
+                                <img src="assets/profile.jpg" alt="Wajeeha Imran" className="hero-image" />
+                                <div className="floating-sparkle sp-1"><i className="fa-solid fa-star"></i></div>
+                                <div className="floating-sparkle sp-2"><i className="fa-solid fa-sparkles"></i></div>
+                                <div className="floating-sparkle sp-3"><i className="fa-solid fa-heart"></i></div>
+                            </div>
+                        </Tilt>
                     </div>
                 </div>
                 
