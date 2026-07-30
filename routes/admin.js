@@ -36,10 +36,10 @@ const loginLimiter = rateLimit({
     message: { error: 'Too many login attempts. Please try again later.' }
 });
 
-router.post('/login', loginLimiter, validateCsrfToken, (req, res) => {
+router.post('/login', loginLimiter, validateCsrfToken, async (req, res) => {
     const { username, password } = req.body;
     try {
-        const admin = db.prepare('SELECT id, admin_username, admin_password_hash FROM settings LIMIT 1').get();
+        const admin = (await db.execute('SELECT id, admin_username, admin_password_hash FROM settings LIMIT 1')).rows[0];
         if (!admin || admin.admin_username !== username) return res.status(401).json({ error: 'Access Denied — check your username or password' });
         const isMatch = bcrypt.compareSync(password, admin.admin_password_hash);
         if (!isMatch) return res.status(401).json({ error: 'Access Denied — check your username or password' });
@@ -51,7 +51,7 @@ router.post('/login', loginLimiter, validateCsrfToken, (req, res) => {
     }
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
     req.session.destroy();
     res.json({ success: true, message: 'Logged out successfully' });
 });
@@ -67,14 +67,14 @@ router.use((req, res, next) => {
 });
 
 // Auth Check (for React router)
-router.get('/check-auth', (req, res) => res.json({ authenticated: true }));
+router.get('/check-auth', async (req, res) => { res.json({ authenticated: true }); });
 
 // Analytics Dashboard Route
-router.get('/analytics', (req, res) => {
+router.get('/analytics', async (req, res) => {
     try {
-        const analytics = db.prepare('SELECT * FROM analytics LIMIT 1').get() || { page_views: 0, cv_downloads: 0, contact_submissions: 0 };
-        const unreadMessagesCount = db.prepare('SELECT COUNT(*) as count FROM messages WHERE is_read = 0').get().count;
-        const recentMessages = db.prepare('SELECT * FROM messages ORDER BY timestamp DESC LIMIT 5').all();
+        const analytics = (await db.execute('SELECT * FROM analytics LIMIT 1')).rows[0] || { page_views: 0, cv_downloads: 0, contact_submissions: 0 };
+        const unreadMessagesCount = (await db.execute('SELECT COUNT(*) as count FROM messages WHERE is_read = 0')).rows[0].count;
+        const recentMessages = (await db.execute('SELECT * FROM messages ORDER BY timestamp DESC LIMIT 5')).rows;
         res.json({ ...analytics, unread_messages: unreadMessagesCount, recent_messages: recentMessages });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
@@ -82,181 +82,164 @@ router.get('/analytics', (req, res) => {
 });
 
 // MESSAGES
-router.get('/messages', (req, res) => {
-    res.json(db.prepare('SELECT * FROM messages ORDER BY timestamp DESC').all());
+router.get('/messages', async (req, res) => {
+    res.json((await db.execute('SELECT * FROM messages ORDER BY timestamp DESC')).rows);
 });
-router.put('/messages/:id/read', (req, res) => {
-    db.prepare('UPDATE messages SET is_read = 1 WHERE id = ?').run(req.params.id);
+router.put('/messages/:id/read', async (req, res) => {
+    await db.execute({ sql: 'UPDATE messages SET is_read = 1 WHERE id = ?', args: [req.params.id] });
     res.json({ success: true });
 });
-router.delete('/messages/:id', (req, res) => {
-    db.prepare('DELETE FROM messages WHERE id = ?').run(req.params.id);
+router.delete('/messages/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM messages WHERE id = ?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // BIO
-router.get('/bio', (req, res) => res.json(db.prepare('SELECT * FROM bio LIMIT 1').get() || {}));
-router.put('/bio', (req, res) => {
+router.get('/bio', async (req, res) => { res.json((await db.execute('SELECT * FROM bio LIMIT 1')).rows[0] || {}); });
+router.put('/bio', async (req, res) => {
     const { about_text, hero_subtitle, availability_status, location, languages, phone, email } = req.body;
-    db.prepare('UPDATE bio SET about_text=?, hero_subtitle=?, availability_status=?, location=?, languages=?, phone=?, email=? WHERE id = 1')
-      .run(about_text, hero_subtitle, availability_status, location, languages, phone, email);
+    await db.execute({ sql: 'UPDATE bio SET about_text=?, hero_subtitle=?, availability_status=?, location=?, languages=?, phone=?, email=? WHERE id = 1', args: [about_text, hero_subtitle, availability_status, location, languages, phone, email] });
     res.json({ success: true });
 });
 
 // EDUCATION
-router.post('/education', (req, res) => {
+router.post('/education', async (req, res) => {
     const { degree, institution, board_or_note, start_year, end_year, description, order_index } = req.body;
-    db.prepare('INSERT INTO education (degree, institution, board_or_note, start_year, end_year, description, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .run(degree, institution, board_or_note, start_year, end_year, description, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO education (degree, institution, board_or_note, start_year, end_year, description, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)', args: [degree, institution, board_or_note, start_year, end_year, description, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/education/:id', (req, res) => {
+router.put('/education/:id', async (req, res) => {
     const { degree, institution, board_or_note, start_year, end_year, description, order_index } = req.body;
-    db.prepare('UPDATE education SET degree=?, institution=?, board_or_note=?, start_year=?, end_year=?, description=?, order_index=? WHERE id=?')
-      .run(degree, institution, board_or_note, start_year, end_year, description, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE education SET degree=?, institution=?, board_or_note=?, start_year=?, end_year=?, description=?, order_index=? WHERE id=?', args: [degree, institution, board_or_note, start_year, end_year, description, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/education/:id', (req, res) => {
-    db.prepare('DELETE FROM education WHERE id=?').run(req.params.id);
+router.delete('/education/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM education WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // SKILLS
-router.post('/skills', (req, res) => {
+router.post('/skills', async (req, res) => {
     const { name, category, percentage, order_index } = req.body;
-    db.prepare('INSERT INTO skills (name, category, percentage, order_index) VALUES (?, ?, ?, ?)')
-      .run(name, category, percentage, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO skills (name, category, percentage, order_index) VALUES (?, ?, ?, ?)', args: [name, category, percentage, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/skills/:id', (req, res) => {
+router.put('/skills/:id', async (req, res) => {
     const { name, category, percentage, order_index } = req.body;
-    db.prepare('UPDATE skills SET name=?, category=?, percentage=?, order_index=? WHERE id=?')
-      .run(name, category, percentage, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE skills SET name=?, category=?, percentage=?, order_index=? WHERE id=?', args: [name, category, percentage, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/skills/:id', (req, res) => {
-    db.prepare('DELETE FROM skills WHERE id=?').run(req.params.id);
+router.delete('/skills/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM skills WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // PROJECTS
-router.post('/projects', (req, res) => {
+router.post('/projects', async (req, res) => {
     const { title, category, description, tech_badges, github_url, live_url, status_badge, is_featured, order_index } = req.body;
-    db.prepare('INSERT INTO projects (title, category, description, tech_badges, github_url, live_url, status_badge, is_featured, order_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-      .run(title, category, description, tech_badges, github_url, live_url, status_badge, is_featured ? 1 : 0, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO projects (title, category, description, tech_badges, github_url, live_url, status_badge, is_featured, order_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', args: [title, category, description, tech_badges, github_url, live_url, status_badge, is_featured ? 1 : 0, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/projects/:id', (req, res) => {
+router.put('/projects/:id', async (req, res) => {
     const { title, category, description, tech_badges, github_url, live_url, status_badge, is_featured, order_index } = req.body;
-    db.prepare('UPDATE projects SET title=?, category=?, description=?, tech_badges=?, github_url=?, live_url=?, status_badge=?, is_featured=?, order_index=? WHERE id=?')
-      .run(title, category, description, tech_badges, github_url, live_url, status_badge, is_featured ? 1 : 0, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE projects SET title=?, category=?, description=?, tech_badges=?, github_url=?, live_url=?, status_badge=?, is_featured=?, order_index=? WHERE id=?', args: [title, category, description, tech_badges, github_url, live_url, status_badge, is_featured ? 1 : 0, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/projects/:id', (req, res) => {
-    db.prepare('DELETE FROM projects WHERE id=?').run(req.params.id);
+router.delete('/projects/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM projects WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // CERTIFICATIONS
-router.post('/certifications', (req, res) => {
+router.post('/certifications', async (req, res) => {
     const { title, issuing_org, date, image_url, verify_url, order_index } = req.body;
-    db.prepare('INSERT INTO certifications (title, issuing_org, date, image_url, verify_url, order_index) VALUES (?, ?, ?, ?, ?, ?)')
-      .run(title, issuing_org, date, image_url, verify_url, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO certifications (title, issuing_org, date, image_url, verify_url, order_index) VALUES (?, ?, ?, ?, ?, ?)', args: [title, issuing_org, date, image_url, verify_url, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/certifications/:id', (req, res) => {
+router.put('/certifications/:id', async (req, res) => {
     const { title, issuing_org, date, image_url, verify_url, order_index } = req.body;
-    db.prepare('UPDATE certifications SET title=?, issuing_org=?, date=?, image_url=?, verify_url=?, order_index=? WHERE id=?')
-      .run(title, issuing_org, date, image_url, verify_url, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE certifications SET title=?, issuing_org=?, date=?, image_url=?, verify_url=?, order_index=? WHERE id=?', args: [title, issuing_org, date, image_url, verify_url, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/certifications/:id', (req, res) => {
-    db.prepare('DELETE FROM certifications WHERE id=?').run(req.params.id);
+router.delete('/certifications/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM certifications WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // SERVICES
-router.post('/services', (req, res) => {
+router.post('/services', async (req, res) => {
     const { title, description, icon_name, order_index } = req.body;
-    db.prepare('INSERT INTO services (title, description, icon_name, order_index) VALUES (?, ?, ?, ?)')
-      .run(title, description, icon_name, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO services (title, description, icon_name, order_index) VALUES (?, ?, ?, ?)', args: [title, description, icon_name, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/services/:id', (req, res) => {
+router.put('/services/:id', async (req, res) => {
     const { title, description, icon_name, order_index } = req.body;
-    db.prepare('UPDATE services SET title=?, description=?, icon_name=?, order_index=? WHERE id=?')
-      .run(title, description, icon_name, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE services SET title=?, description=?, icon_name=?, order_index=? WHERE id=?', args: [title, description, icon_name, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/services/:id', (req, res) => {
-    db.prepare('DELETE FROM services WHERE id=?').run(req.params.id);
+router.delete('/services/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM services WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // TESTIMONIALS
-router.post('/testimonials', (req, res) => {
+router.post('/testimonials', async (req, res) => {
     const { name, role, quote, rating, order_index } = req.body;
-    db.prepare('INSERT INTO testimonials (name, role, quote, rating, order_index) VALUES (?, ?, ?, ?, ?)')
-      .run(name, role, quote, rating, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO testimonials (name, role, quote, rating, order_index) VALUES (?, ?, ?, ?, ?)', args: [name, role, quote, rating, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/testimonials/:id', (req, res) => {
+router.put('/testimonials/:id', async (req, res) => {
     const { name, role, quote, rating, order_index } = req.body;
-    db.prepare('UPDATE testimonials SET name=?, role=?, quote=?, rating=?, order_index=? WHERE id=?')
-      .run(name, role, quote, rating, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE testimonials SET name=?, role=?, quote=?, rating=?, order_index=? WHERE id=?', args: [name, role, quote, rating, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/testimonials/:id', (req, res) => {
-    db.prepare('DELETE FROM testimonials WHERE id=?').run(req.params.id);
+router.delete('/testimonials/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM testimonials WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // SOCIAL LINKS (Only edit/toggle allowed)
-router.put('/social-links/:id', (req, res) => {
+router.put('/social-links/:id', async (req, res) => {
     const { url, is_visible } = req.body;
-    db.prepare('UPDATE social_links SET url=?, is_visible=? WHERE id=?')
-      .run(url, is_visible ? 1 : 0, req.params.id);
+    await db.execute({ sql: 'UPDATE social_links SET url=?, is_visible=? WHERE id=?', args: [url, is_visible ? 1 : 0, req.params.id] });
     res.json({ success: true });
 });
 
 // HOBBIES
-router.post('/hobbies', (req, res) => {
+router.post('/hobbies', async (req, res) => {
     const { label, icon_emoji, order_index } = req.body;
-    db.prepare('INSERT INTO hobbies (label, icon_emoji, order_index) VALUES (?, ?, ?)')
-      .run(label, icon_emoji, order_index || 0);
+    await db.execute({ sql: 'INSERT INTO hobbies (label, icon_emoji, order_index) VALUES (?, ?, ?)', args: [label, icon_emoji, order_index || 0] });
     res.json({ success: true });
 });
-router.put('/hobbies/:id', (req, res) => {
+router.put('/hobbies/:id', async (req, res) => {
     const { label, icon_emoji, order_index } = req.body;
-    db.prepare('UPDATE hobbies SET label=?, icon_emoji=?, order_index=? WHERE id=?')
-      .run(label, icon_emoji, order_index || 0, req.params.id);
+    await db.execute({ sql: 'UPDATE hobbies SET label=?, icon_emoji=?, order_index=? WHERE id=?', args: [label, icon_emoji, order_index || 0, req.params.id] });
     res.json({ success: true });
 });
-router.delete('/hobbies/:id', (req, res) => {
-    db.prepare('DELETE FROM hobbies WHERE id=?').run(req.params.id);
+router.delete('/hobbies/:id', async (req, res) => {
+    await db.execute({ sql: 'DELETE FROM hobbies WHERE id=?', args: [req.params.id] });
     res.json({ success: true });
 });
 
 // SETTINGS
-router.put('/settings', (req, res) => {
+router.put('/settings', async (req, res) => {
     const { availability_banner_enabled, banner_text, site_stats_json } = req.body;
-    db.prepare('UPDATE settings SET availability_banner_enabled=?, banner_text=?, site_stats_json=? WHERE id=1')
-      .run(availability_banner_enabled ? 1 : 0, banner_text, JSON.stringify(site_stats_json));
+    await db.execute({ sql: 'UPDATE settings SET availability_banner_enabled=?, banner_text=?, site_stats_json=? WHERE id=1', args: [availability_banner_enabled ? 1 : 0, banner_text, JSON.stringify(site_stats_json)] });
     res.json({ success: true });
 });
-router.put('/settings/password', (req, res) => {
+router.put('/settings/password', async (req, res) => {
     const { current_password, new_password } = req.body;
-    const admin = db.prepare('SELECT admin_password_hash FROM settings WHERE id=1').get();
+    const admin = (await db.execute('SELECT admin_password_hash FROM settings WHERE id=1')).rows[0];
     if (!bcrypt.compareSync(current_password, admin.admin_password_hash)) {
         return res.status(400).json({ error: 'Incorrect current password' });
     }
     const hash = bcrypt.hashSync(new_password, 10);
-    db.prepare('UPDATE settings SET admin_password_hash=? WHERE id=1').run(hash);
+    await db.execute({ sql: 'UPDATE settings SET admin_password_hash=? WHERE id=1', args: [hash] });
     res.json({ success: true, message: 'Password updated successfully' });
 });
 
 // FILE UPLOADS
-router.post('/upload-cv', upload.single('cv'), (req, res) => {
+router.post('/upload-cv', upload.single('cv'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     // In a real app, update DB or rename to a fixed name. 
     // The public site expects 'assets/cv.pdf'. 
@@ -267,7 +250,7 @@ router.post('/upload-cv', upload.single('cv'), (req, res) => {
     res.json({ success: true, message: 'CV uploaded successfully' });
 });
 
-router.post('/upload-image', upload.single('image'), (req, res) => {
+router.post('/upload-image', upload.single('image'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const fileUrl = `/uploads/${req.file.filename}`;
     res.json({ success: true, url: fileUrl });

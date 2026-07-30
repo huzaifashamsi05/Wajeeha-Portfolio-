@@ -27,8 +27,11 @@ router.post('/contact', contactLimiter, async (req, res) => {
 
     try {
         // Save to database
-        db.prepare('INSERT INTO messages (name, email, message) VALUES (?, ?, ?)').run(name, email, message);
-        db.prepare('UPDATE analytics SET contact_submissions = contact_submissions + 1 WHERE id = 1').run();
+        await db.execute({
+            sql: 'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)',
+            args: [name, email, message]
+        });
+        await db.execute('UPDATE analytics SET contact_submissions = contact_submissions + 1 WHERE id = 1');
 
         // Send Email
         const transporter = nodemailer.createTransport({
