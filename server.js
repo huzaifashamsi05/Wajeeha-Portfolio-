@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { initializeDatabase } from './database.js';
 
 import publicRoutes from './routes/public.js';
 import contactRoutes from './routes/contact.js';
@@ -19,9 +18,6 @@ app.use(cors({
 })); // Allow Vite proxy and cookies
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-// Initialize DB
-initializeDatabase();
 
 // Routes
 app.use('/api', publicRoutes);
