@@ -437,8 +437,10 @@ a:hover ~ .cursor-outline, button:hover ~ .cursor-outline { width: 60px; height:
     /* About */
     .about-content { display: flex; flex-direction: column; text-align: center; }
     .about-info-grid { grid-template-columns: 1fr; text-align: left; }
-    .mini-stats-grid { grid-template-columns: 1fr; }
+    .about-text-content .btn { margin: 1.5rem auto 0; display: block; }
+    .mini-stats-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
     .building-card { padding: 2rem; }
+    .building-badge { position: static; margin-bottom: 1rem; display: inline-flex; width: fit-content; animation: none; }
     
     /* Projects & Grids */
     .projects-grid { display: grid; grid-template-columns: 1fr !important; }
@@ -464,6 +466,11 @@ a:hover ~ .cursor-outline, button:hover ~ .cursor-outline { width: 60px; height:
     .contact-grid { display: flex; flex-direction: column; gap: 2rem; padding: 0; }
     .contact-form-wrapper, .contact-info-wrapper { padding: 1.5rem; }
     
+    /* Floating Actions */
+    .floating-actions { align-items: center; bottom: 15px; right: 15px; gap: 10px; }
+    .floating-whatsapp { width: 50px; height: 50px; font-size: 1.5rem; }
+    .back-to-top { width: 40px; height: 40px; font-size: 1rem; }
+
     /* Footer */
     .footer-brand h2 { font-size: 2.5rem; }
 }
