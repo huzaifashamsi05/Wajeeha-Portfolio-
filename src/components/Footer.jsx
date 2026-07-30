@@ -47,7 +47,7 @@ const Footer = () => {
                 </div>
                 
                 <div className="footer-bottom">
-                    <p>Made with 💜 by Wajeeha Imran &copy; {currentYear}</p>
+                    <p>Made with 💜 by Huzaifa Shamsi <a href="https://wa.me/923098333185" target="_blank" rel="noreferrer" style={{color: 'inherit', margin: '0 5px', textDecoration: 'none'}} aria-label="Contact Developer on WhatsApp"><i className="fa-brands fa-whatsapp"></i></a> {currentYear}</p>
                     <Link to="/admin" className="admin-link">Admin</Link>
                 </div>
             </div>
