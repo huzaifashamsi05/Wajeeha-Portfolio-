@@ -111,15 +111,16 @@ const Hero = ({ theme }) => {
                     
                     <div className="hero-image-container reveal">
                         <Tilt 
-                            tiltMaxAngleX={10} 
-                            tiltMaxAngleY={10} 
+                            tiltMaxAngleX={25} 
+                            tiltMaxAngleY={25} 
                             perspective={1000} 
-                            scale={1.05} 
-                            transitionSpeed={2000}
+                            scale={1.1} 
+                            transitionSpeed={1000}
                             glareEnable={true}
-                            glareMaxOpacity={0.2}
+                            glareMaxOpacity={0.4}
                             glareColor="var(--accent-glow)"
                             glarePosition="all"
+                            gyroscope={true}
                         >
                             <div className="hero-image-wrapper">
                                 <div className="animated-border"></div>
