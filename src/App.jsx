@@ -36,7 +36,7 @@ function App() {
   useEffect(() => {
     fetch('/api/track-pageview', { method: 'POST' }).catch(console.error);
     const handleScroll = () => {
-        const revealElements = document.querySelectorAll('.reveal');
+        const revealElements = document.querySelectorAll('.reveal, .reveal-stagger');
         const windowHeight = window.innerHeight;
         const isMobile = window.innerWidth < 768;
         revealElements.forEach(el => {
@@ -48,6 +48,34 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     setTimeout(handleScroll, 100);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Magnetic Buttons Effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+        const target = e.target.closest('.btn');
+        if (target) {
+            const rect = target.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            target.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+        }
+    };
+    
+    const handleMouseOut = (e) => {
+        const target = e.target.closest('.btn');
+        if (target) {
+            target.style.transform = 'translate(0px, 0px)';
+        }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseout', handleMouseOut);
+    
+    return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseout', handleMouseOut);
+    };
   }, []);
 
   const ProtectedRoute = ({ children }) => {

@@ -5,6 +5,7 @@ const FloatingElements = () => {
     const [showBackToTop, setShowBackToTop] = useState(false);
     const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
     const [isDesktop, setIsDesktop] = useState(true);
+    const [trail, setTrail] = useState([]);
 
     useEffect(() => {
         const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
@@ -25,6 +26,11 @@ const FloatingElements = () => {
         const handleMouseMove = (e) => {
             if (isDesktop) {
                 setCursorPos({ x: e.clientX, y: e.clientY });
+                setTrail(prev => {
+                    const newTrail = [...prev, { x: e.clientX, y: e.clientY, id: Date.now() + Math.random() }];
+                    if (newTrail.length > 8) newTrail.shift();
+                    return newTrail;
+                });
             }
         };
 
@@ -38,6 +44,15 @@ const FloatingElements = () => {
             window.removeEventListener('scroll', handleScroll);
             window.removeEventListener('mousemove', handleMouseMove);
         };
+    }, [isDesktop]);
+
+    // Clear trail on interval to simulate fading when stopped
+    useEffect(() => {
+        if (!isDesktop) return;
+        const interval = setInterval(() => {
+            setTrail(prev => (prev.length > 0 ? prev.slice(1) : []));
+        }, 50);
+        return () => clearInterval(interval);
     }, [isDesktop]);
 
     const scrollToTop = () => {
@@ -74,6 +89,18 @@ const FloatingElements = () => {
             {/* Full Custom Cursor (Desktop Only) */}
             {isDesktop && (
                 <>
+                    {trail.map((t, index) => (
+                        <div 
+                            key={t.id}
+                            className="cursor-trail-dot"
+                            style={{ 
+                                left: `${t.x}px`, 
+                                top: `${t.y}px`,
+                                opacity: (index + 1) / trail.length,
+                                transform: `translate(-50%, -50%) scale(${(index + 1) / trail.length})`
+                            }}
+                        ></div>
+                    ))}
                     <div 
                         className="cursor-dot"
                         style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}

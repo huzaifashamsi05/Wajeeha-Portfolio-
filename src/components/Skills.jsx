@@ -48,7 +48,7 @@ const Skills = () => {
                     ))}
                 </div>
                 
-                <div className="skills-grid reveal">
+                <div className="skills-grid reveal-stagger">
                     {filteredSkills.map(skill => (
                         <div className="skill-item" key={skill.id}>
                             <div className="skill-info">
@@ -58,14 +58,14 @@ const Skills = () => {
                             <div className="progress-bar">
                                 <div 
                                     className="progress" 
-                                    style={{ width: `${skill.percentage}%` }}
+                                    style={{ '--skill-width': `${skill.percentage}%` }}
                                 ></div>
                             </div>
                         </div>
                     ))}
                 </div>
                 
-                <div className="icon-grid glass-card reveal">
+                <div className="icon-grid glass-card reveal-stagger">
                     <div className="icon-item" title="Python"><i className="devicon-python-plain"></i></div>
                     <div className="icon-item" title="C++"><i className="devicon-cplusplus-plain"></i></div>
                     <div className="icon-item" title="Java"><i className="devicon-java-plain"></i></div>

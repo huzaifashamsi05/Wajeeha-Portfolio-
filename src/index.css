@@ -141,6 +141,17 @@ section { padding: var(--section-padding); position: relative; z-index: 1; }
 
 .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
 .reveal.active { opacity: 1; transform: translateY(0); }
+.reveal-stagger { opacity: 1; transform: translateY(0); } /* Wrapper doesn't move */
+.reveal-stagger > * { opacity: 0; transform: translateY(30px); transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+.reveal-stagger.active > * { opacity: 1; transform: translateY(0); }
+.reveal-stagger.active > *:nth-child(1) { transition-delay: 0.1s; }
+.reveal-stagger.active > *:nth-child(2) { transition-delay: 0.2s; }
+.reveal-stagger.active > *:nth-child(3) { transition-delay: 0.3s; }
+.reveal-stagger.active > *:nth-child(4) { transition-delay: 0.4s; }
+.reveal-stagger.active > *:nth-child(5) { transition-delay: 0.5s; }
+.reveal-stagger.active > *:nth-child(6) { transition-delay: 0.6s; }
+.reveal-stagger.active > *:nth-child(7) { transition-delay: 0.7s; }
+.reveal-stagger.active > *:nth-child(8) { transition-delay: 0.8s; }
 
 /* ==========================================================================
    FLOATING ELEMENTS
@@ -268,7 +279,8 @@ section { padding: var(--section-padding); position: relative; z-index: 1; }
 .skill-item { margin-bottom: 1rem; }
 .skill-info { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-weight: 500; font-size: 1.1rem; }
 .progress-bar { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
-.progress { height: 100%; background: var(--gradient-primary); border-radius: 10px; transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px var(--secondary-color); }
+.progress { height: 100%; background: var(--gradient-primary); border-radius: 10px; transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px var(--secondary-color); width: 0; }
+.skills-grid.active .progress { width: var(--skill-width); }
 
 .icon-grid { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 2rem; padding: 3rem; margin-bottom: 4rem; }
 .icon-item { font-size: 3.5rem; color: var(--text-secondary); transition: var(--transition-smooth); width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; line-height: 1; margin: 0; opacity: 0.7; }
@@ -599,4 +611,68 @@ a:hover ~ .cursor-outline, button:hover ~ .cursor-outline { width: 60px; height:
     .hero-buttons .btn { width: 100%; text-align: center; }
     .icon-item { width: 50px; height: 50px; font-size: 2.5rem; }
     .hobbies-grid { grid-template-columns: 1fr !important; }
+}
+.cursor-trail-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    mix-blend-mode: exclusion;
+    transition: width 0.1s, height 0.1s;
+}
+
+/* ==========================================================================
+   ENHANCED LOADER ANIMATION
+   ========================================================================== */
+.loader-container {
+    position: fixed;
+    inset: 0;
+    background-color: #0f0a1f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+}
+.loader-container.slide-up-exit {
+    transform: translateY(-100%);
+}
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.loader-logo-text {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+    color: #fff;
+    text-transform: uppercase;
+    animation: textFocus 1.5s ease-in-out;
+}
+.loader-progress-bar {
+    width: 150px;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.loader-progress {
+    width: 0%;
+    height: 100%;
+    background: var(--gradient-primary);
+    animation: loadProgress 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+@keyframes textFocus {
+    0% { filter: blur(10px); opacity: 0; }
+    100% { filter: blur(0); opacity: 1; }
+}
+@keyframes loadProgress {
+    0% { width: 0%; }
+    100% { width: 100%; }
 }
