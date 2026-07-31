@@ -88,7 +88,7 @@ const Hero = ({ theme }) => {
             <div id="particles-js"></div>
             <div className="container">
                 <div className="hero-content">
-                    <div className="hero-text reveal">
+                    <div className="hero-text reveal-stagger">
                         <h3>Hi there, I'm Wajeeha 👋</h3>
                         <h1>Wajeeha Imran</h1>
                         <div className="typewriter-container">
@@ -132,7 +132,7 @@ const Hero = ({ theme }) => {
                     </div>
                 </div>
                 
-                <div className="hero-stats-bar reveal">
+                <div className="hero-stats-bar reveal-stagger">
                     {stats.map((stat, index) => (
                         <div className="stat-card glass-card" key={index}>
                             <div className="stat-number">{stat.value}</div>

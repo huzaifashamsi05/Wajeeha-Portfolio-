@@ -20,10 +20,10 @@ const About = () => {
     return (
         <section id="about" className="about-section">
             <div className="container">
-                <h2 className="section-title reveal">About Me</h2>
+                <h2 className="section-title reveal-stagger">About Me</h2>
                 
                 <div className="about-content">
-                    <div className="about-text-content reveal">
+                    <div className="about-text-content reveal-stagger">
                         <p className="about-bio">{bio.about_text}</p>
                         
                         <div className="about-info-grid">
@@ -66,7 +66,7 @@ const About = () => {
                         </a>
                     </div>
                     
-                    <div className="about-visuals reveal">
+                    <div className="about-visuals reveal-stagger">
                         <div className="mini-stats-grid">
                             <div className="mini-stat-card glass-card">
                                 <i className="fa-solid fa-code"></i>
@@ -92,7 +92,7 @@ const About = () => {
                     </div>
                 </div>
                 
-                <div className="currently-building-wrapper reveal">
+                <div className="currently-building-wrapper reveal-stagger">
                     <div className="building-card glass-card">
                         <div className="building-badge">
                             <i className="fa-solid fa-fire"></i> In Progress
