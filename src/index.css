@@ -203,7 +203,43 @@ section { padding: var(--section-padding); position: relative; z-index: 1; }
 .navbar.scrolled { background: rgba(10, 6, 18, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1rem 0; border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
 [data-theme="light"] .navbar.scrolled { background: rgba(253, 244, 255, 0.8); }
 .nav-container { display: flex; justify-content: space-between; align-items: center; }
-.nav-logo { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-logo { 
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-family: var(--font-heading); 
+    font-size: 1.4rem; 
+    font-weight: 700; 
+    color: var(--text-primary);
+    text-shadow: none;
+    z-index: 1;
+}
+.nav-logo::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0%, var(--primary-color) 30%, var(--secondary-color) 70%, transparent 100%);
+    animation: spinLogo 3s linear infinite;
+    z-index: -2;
+}
+.nav-logo::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    z-index: -1;
+    transition: var(--transition-smooth);
+}
+@keyframes spinLogo {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 .nav-links { display: flex; gap: 2rem; align-items: center; }
 .nav-links a { font-weight: 500; font-size: 0.95rem; color: var(--text-secondary); position: relative; }
 .nav-links a:hover, .nav-links a.active { color: var(--text-primary); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
